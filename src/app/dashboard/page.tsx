@@ -123,12 +123,46 @@ export default function DashboardPage() {
           link="/dashboard/properties"
           linkText="Manage Properties"
         />
-        <DashboardCard
-          title="Calendar"
-          icon={<Calendar className="h-8 w-8 text-purple-500" />}
-          link="/dashboard/calendar"
-          linkText="Manage Calendar"
-        />
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <CardTitle className="text-lg">Calendar</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-col items-center">
+              <div className="bg-gradient-to-r from-indigo-500 to-blue-600 text-white rounded-t-lg w-full p-2">
+                <div className="flex justify-center items-center">
+                  <span className="text-sm font-medium">{new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-7 gap-1 w-full text-center text-xs border-x border-b rounded-b-lg p-2">
+                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+                  <div key={i} className="font-medium text-gray-600">{day}</div>
+                ))}
+                {Array.from({ length: 35 }, (_, i) => {
+                  const day = i - (new Date(new Date().getFullYear(), new Date().getMonth(), 1).getDay()) + 1;
+                  const isCurrentMonth = day > 0 && day <= new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+                  const isToday = isCurrentMonth && day === new Date().getDate();
+                  
+                  return (
+                    <div 
+                      key={i} 
+                      className={`rounded-full w-6 h-6 mx-auto flex items-center justify-center text-xs
+                        ${isCurrentMonth ? 'text-gray-800' : 'text-gray-400'}
+                        ${isToday ? 'bg-indigo-500 text-white' : ''}`}
+                    >
+                      {isCurrentMonth ? day : ''}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <Button variant="outline" asChild className="w-full">
+              <Link href="/dashboard/calendar" className="flex items-center justify-center space-x-2">
+                <span>Manage Calendar</span>
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
         <DashboardCard
           title="Bookings"
           icon={<BookOpen className="h-8 w-8 text-green-500" />}
