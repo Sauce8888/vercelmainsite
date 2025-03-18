@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,9 +11,9 @@ import { toast } from 'sonner';
 import Link from 'next/link';
 
 // Create a Supabase client for client-side use
-const supabase = createClient(
+const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 );
 
 export default function SignIn() {
@@ -36,9 +36,15 @@ export default function SignIn() {
         throw error;
       }
 
+      // Show success toast
       toast.success('Successfully signed in!');
+      
+      // Clear any cached navigation to ensure a fresh state
+      router.prefetch('/dashboard');
+      
+      // Navigate to dashboard and refresh to update session state
       router.push('/dashboard');
-      router.refresh();
+      
     } catch (error: any) {
       toast.error(error.message || 'Error signing in');
     } finally {

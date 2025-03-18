@@ -1,11 +1,46 @@
 "use client";
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Home, Calendar, BookOpen, DollarSign } from 'lucide-react';
+import { createClient } from '@supabase/supabase-js';
+
+// Create a Supabase client for client-side use
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function LandingPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          // User is logged in, redirect to dashboard
+          router.replace('/dashboard');
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+      }
+    };
+
+    let isActive = true;
+    if (isActive) {
+      checkSession();
+    }
+    
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
   return (
     <main className="flex min-h-screen flex-col items-center p-8">
       <div className="max-w-5xl w-full space-y-12 py-12">
