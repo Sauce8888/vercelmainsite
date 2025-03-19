@@ -73,12 +73,27 @@ export default function DashboardLayout({
 }
 
 function NavItem({ href, icon, label }: { href: string; icon: ReactNode; label: string }) {
+  const router = useRouter();
+  
+  const handleClick = () => {
+    router.push(href);
+  };
+  
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      router.push(href);
+    }
+  };
+  
   return (
     <Link 
       href={href}
       className="flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
       tabIndex={0}
       aria-label={label}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
     >
       <span className="text-gray-500 dark:text-gray-400">{icon}</span>
       <span>{label}</span>

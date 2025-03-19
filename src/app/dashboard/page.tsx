@@ -9,12 +9,14 @@ import { formatDistanceToNow } from 'date-fns';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useAuth } from '@/components/providers/auth-provider';
 import type { Property, Booking } from '@/lib/types';
+import { useRouter } from 'next/navigation';
 
 type PropertyPreview = Pick<Property, 'id' | 'name' | 'base_price' | 'images'>;
 type BookingPreview = Pick<Booking, 'id' | 'property_id' | 'guest_name' | 'check_in' | 'check_out' | 'total_price' | 'status' | 'created_at'>;
 
 export default function DashboardPage() {
   const { session } = useAuth();
+  const router = useRouter();
   const [properties, setProperties] = useState<PropertyPreview[]>([]);
   const [recentBookings, setRecentBookings] = useState<BookingPreview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -177,7 +179,10 @@ export default function DashboardPage() {
               </div>
             </div>
             <Button variant="outline" asChild className="w-full">
-              <Link href="/dashboard/calendar" className="flex items-center justify-center space-x-2">
+              <Link href="/dashboard/calendar" className="flex items-center justify-center space-x-2" onClick={(e) => {
+                e.preventDefault();
+                router.push('/dashboard/calendar');
+              }}>
                 <span>Manage Calendar</span>
               </Link>
             </Button>
