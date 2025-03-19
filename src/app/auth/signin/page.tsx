@@ -39,11 +39,8 @@ export default function SignIn() {
       // Show success toast
       toast.success('Successfully signed in!');
       
-      // Clear any cached navigation to ensure a fresh state
-      router.prefetch('/dashboard');
-      
-      // Navigate to dashboard and refresh to update session state
-      router.push('/dashboard');
+      // Force a hard navigation to dashboard instead of client-side navigation
+      window.location.href = '/dashboard';
       
     } catch (error: any) {
       toast.error(error.message || 'Error signing in');
