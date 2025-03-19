@@ -43,11 +43,11 @@ async function isAuthorizedForBooking(supabase: ReturnType<typeof createApiClien
 // GET /api/bookings/[id] - Get a specific booking by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createApiClient();
-    const { id } = params;
+    const { id } = await params;
     
     // Check if user is authenticated
     const { data: { session } } = await supabase.auth.getSession();
@@ -104,11 +104,11 @@ export async function GET(
 // PUT /api/bookings/[id] - Update a booking's status
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createApiClient();
-    const { id } = params;
+    const { id } = await params;
     
     // Check if user is authenticated
     const { data: { session } } = await supabase.auth.getSession();
