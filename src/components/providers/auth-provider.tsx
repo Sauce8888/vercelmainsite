@@ -48,15 +48,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (event === 'SIGNED_OUT') {
           router.push('/');
-        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          // Force refresh to ensure server-side auth state is in sync
+        } else if (event === 'SIGNED_IN') {
+          // Only refresh and redirect on explicit sign in
           router.refresh();
-          
-          // Additional navigation to dashboard for SIGNED_IN event
-          if (event === 'SIGNED_IN') {
-            window.location.href = '/dashboard';
-          }
+          router.push('/dashboard');
         }
+        // TOKEN_REFRESHED no longer triggers a refresh or redirect
       }
     );
 

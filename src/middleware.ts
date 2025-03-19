@@ -13,16 +13,24 @@ export async function middleware(req: NextRequest) {
 
   // If no session and the path is protected, redirect to login
   if (!session && req.nextUrl.pathname.startsWith('/dashboard')) {
-    const redirectUrl = new URL('/auth/signin', req.url);
-    return NextResponse.redirect(redirectUrl);
+    // Check if we're already coming from the signin page to prevent loops
+    const referer = req.headers.get('referer') || '';
+    if (!referer.includes('/auth/signin')) {
+      const redirectUrl = new URL('/auth/signin', req.url);
+      return NextResponse.redirect(redirectUrl);
+    }
   }
   
   // If we have a session but the user is on the auth pages, redirect to dashboard
   if (session && 
       (req.nextUrl.pathname === '/auth/signin' || 
        req.nextUrl.pathname === '/auth/signup')) {
-    const redirectUrl = new URL('/dashboard', req.url);
-    return NextResponse.redirect(redirectUrl);
+    // Check if we're already coming from the dashboard to prevent loops
+    const referer = req.headers.get('referer') || '';
+    if (!referer.includes('/dashboard')) {
+      const redirectUrl = new URL('/dashboard', req.url);
+      return NextResponse.redirect(redirectUrl);
+    }
   }
   
   return res;

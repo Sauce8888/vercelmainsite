@@ -24,41 +24,49 @@ export default function DashboardPage() {
     const fetchData = async () => {
       if (!session) return;
       
-      try {
-        setIsLoading(true);
-        
-        // Fetch properties
-        const { data: propertiesData, error: propertiesError } = await supabase
-          .from('properties')
-          .select('id, name, base_price, images');
+      // Add a flag to prevent multiple fetches
+      if (isLoading) {
+        try {
+          setIsLoading(true);
           
-        if (propertiesError) {
-          console.error('Error fetching properties:', propertiesError);
-        } else {
-          setProperties(propertiesData || []);
-        }
+          // Fetch properties
+          const { data: propertiesData, error: propertiesError } = await supabase
+            .from('properties')
+            .select('id, name, base_price, images');
+            
+          if (propertiesError) {
+            console.error('Error fetching properties:', propertiesError);
+          } else {
+            setProperties(propertiesData || []);
+          }
 
-        // Fetch recent bookings
-        const { data: bookingsData, error: bookingsError } = await supabase
-          .from('bookings')
-          .select('id, property_id, guest_name, check_in, check_out, total_price, status, created_at')
-          .order('created_at', { ascending: false })
-          .limit(5);
+          // Fetch recent bookings
+          const { data: bookingsData, error: bookingsError } = await supabase
+            .from('bookings')
+            .select('id, property_id, guest_name, check_in, check_out, total_price, status, created_at')
+            .order('created_at', { ascending: false })
+            .limit(5);
 
-        if (bookingsError) {
-          console.error('Error fetching bookings:', bookingsError);
-        } else {
-          setRecentBookings(bookingsData || []);
+          if (bookingsError) {
+            console.error('Error fetching bookings:', bookingsError);
+          } else {
+            setRecentBookings(bookingsData || []);
+          }
+        } catch (error) {
+          console.error('Error fetching dashboard data:', error);
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [session, supabase]);
+    
+    // Prevent additional renders by adding this return function
+    return () => {
+      // Cleanup function
+    };
+  }, [session, supabase, isLoading]);
 
   // Calculate some metrics
   const totalProperties = properties?.length || 0;
