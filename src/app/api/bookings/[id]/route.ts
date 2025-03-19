@@ -10,7 +10,7 @@ const createApiClient = () => {
 };
 
 // Check if the user is authorized for this booking
-async function isAuthorizedForBooking(supabase: any, bookingId: string, userId: string) {
+async function isAuthorizedForBooking(supabase: ReturnType<typeof createApiClient>, bookingId: string, userId: string) {
   // Get the booking and check if the associated property is owned by this user
   const { data: booking, error: bookingError } = await supabase
     .from('bookings')
