@@ -44,10 +44,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
+        console.log('Auth state change event:', event);
         setSession(newSession);
         
         if (event === 'SIGNED_OUT') {
-          router.push('/');
+          setSession(null);
+          router.refresh();
+          router.push('/auth/signin');
         } else if (event === 'SIGNED_IN') {
           // Only refresh and redirect on explicit sign in
           router.refresh();
@@ -64,10 +67,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
+      // Clear the session immediately in the local state
+      setSession(null);
+      
+      // Sign out from Supabase
       await supabase.auth.signOut();
-      router.push('/');
+      
+      // Force refresh to update all components
+      router.refresh();
+      
+      // This router.push is less important now as we use window.location.href in the button component
+      router.push('/auth/signin');
     } catch (error) {
       console.error('Error signing out:', error);
+      throw error; // Propagate the error to the component
     }
   };
 
