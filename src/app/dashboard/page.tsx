@@ -6,20 +6,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Calendar, BookOpen, Settings, DollarSign, Home, Users, CheckSquare, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { createClient } from '@supabase/supabase-js';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useAuth } from '@/components/providers/auth-provider';
+import type { Property, Booking } from '@/lib/types';
 
-// Create a Supabase client for client-side use
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+type PropertyPreview = Pick<Property, 'id' | 'name' | 'base_price' | 'images'>;
+type BookingPreview = Pick<Booking, 'id' | 'property_id' | 'guest_name' | 'check_in' | 'check_out' | 'total_price' | 'status' | 'created_at'>;
 
 export default function DashboardPage() {
   const { session } = useAuth();
-  const [properties, setProperties] = useState<any[]>([]);
-  const [recentBookings, setRecentBookings] = useState<any[]>([]);
+  const [properties, setProperties] = useState<PropertyPreview[]>([]);
+  const [recentBookings, setRecentBookings] = useState<BookingPreview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,7 +58,7 @@ export default function DashboardPage() {
     };
 
     fetchData();
-  }, [session]);
+  }, [session, supabase]);
 
   // Calculate some metrics
   const totalProperties = properties?.length || 0;
@@ -73,6 +72,19 @@ export default function DashboardPage() {
     return (
       <div className="flex h-full items-center justify-center p-8">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  // Check if session exists, if not show login prompt
+  if (!session) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center p-8 space-y-4">
+        <h2 className="text-2xl font-bold">Session Expired</h2>
+        <p>Your session has expired or you're not logged in.</p>
+        <Button asChild>
+          <Link href="/auth/signin">Sign In</Link>
+        </Button>
       </div>
     );
   }

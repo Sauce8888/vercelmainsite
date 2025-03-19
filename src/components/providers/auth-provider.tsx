@@ -1,17 +1,12 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { useRouter } from 'next/navigation';
-
-// Create a Supabase client for client-side use
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import type { Session } from '@supabase/supabase-js';
 
 type AuthContextType = {
-  session: any | null;
+  session: Session | null;
   isLoading: boolean;
   signOut: () => Promise<void>;
 };
@@ -25,9 +20,10 @@ const AuthContext = createContext<AuthContextType>({
 export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<any | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     // Get initial session
@@ -47,10 +43,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
+      async (event, newSession) => {
         setSession(newSession);
+        
         if (event === 'SIGNED_OUT') {
           router.push('/');
+        } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          // Force refresh to ensure server-side auth state is in sync
+          router.refresh();
         }
       }
     );
@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       authListener?.subscription.unsubscribe();
     };
-  }, [router]);
+  }, [router, supabase]);
 
   const signOut = async () => {
     try {
