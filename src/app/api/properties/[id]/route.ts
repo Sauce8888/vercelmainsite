@@ -12,11 +12,11 @@ const createApiClient = () => {
 // GET /api/properties/[id] - Get a specific property by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createApiClient();
-    const { id } = params;
+    const { id } = await params;
     
     // Check if user is authenticated
     const { data: { session } } = await supabase.auth.getSession();
@@ -64,11 +64,11 @@ export async function GET(
 // PUT /api/properties/[id] - Update a specific property
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createApiClient();
-    const { id } = params;
+    const { id } = await params;
     
     // Check if user is authenticated
     const { data: { session } } = await supabase.auth.getSession();
@@ -144,11 +144,11 @@ export async function PUT(
 // DELETE /api/properties/[id] - Delete a specific property
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createApiClient();
-    const { id } = params;
+    const { id } = await params;
     
     // Check if user is authenticated
     const { data: { session } } = await supabase.auth.getSession();
