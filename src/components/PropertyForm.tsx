@@ -44,8 +44,10 @@ const propertyFormSchema = z.object({
   max_guests: z.coerce.number().int().positive({
     message: "Max guests must be a positive number.",
   }),
-  amenities: z.string().transform((value: string) => 
-    value.split(',').map((item: string) => item.trim()).filter(Boolean)
+  amenities: z.array(z.string()).default([]).or(
+    z.string().transform((value: string) => 
+      value ? value.split(',').map((item: string) => item.trim()).filter(Boolean) : []
+    )
   ),
 });
 
@@ -66,7 +68,7 @@ const PropertyForm = () => {
       bedrooms: 1,
       bathrooms: 1,
       max_guests: 1,
-      amenities: '',
+      amenities: [],
     },
   });
 
@@ -235,7 +237,16 @@ const PropertyForm = () => {
                   <FormControl>
                     <Input 
                       placeholder="Wifi, Pool, Hot Tub (comma-separated)" 
-                      {...field} 
+                      value={field.value instanceof Array ? field.value.join(', ') : field.value}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (typeof value === 'string') {
+                          const amenities = value ? value.split(',').map(item => item.trim()).filter(Boolean) : [];
+                          field.onChange(amenities);
+                        } else {
+                          field.onChange(value);
+                        }
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
