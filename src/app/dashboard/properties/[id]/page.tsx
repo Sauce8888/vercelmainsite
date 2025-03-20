@@ -7,11 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Home } from 'lucide-react';
 import PropertyForm from '@/components/PropertyForm';
 
-type PageProps = {
-  params: {
-    id: string;
-  };
-};
+interface PageProps {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
 
 export default async function PropertyDetailPage({ params }: PageProps) {
   const supabase = createServerClient();
