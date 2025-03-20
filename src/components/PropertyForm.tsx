@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { z } from 'zod';
@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { NewProperty } from '@/lib/types';
+import { NewProperty, Property } from '@/lib/types';
 import type { Database } from '@/lib/database.types';
 
 const propertyFormSchema = z.object({
@@ -53,10 +53,15 @@ const propertyFormSchema = z.object({
 
 type PropertyFormValues = z.infer<typeof propertyFormSchema>;
 
-const PropertyForm = () => {
+type PropertyFormProps = {
+  initialData?: Property;
+};
+
+const PropertyForm = ({ initialData }: PropertyFormProps) => {
   const router = useRouter();
   const supabase = createClientComponentClient<Database>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditing = !!initialData;
 
   const form = useForm<PropertyFormValues>({
     resolver: zodResolver(propertyFormSchema),
@@ -72,6 +77,22 @@ const PropertyForm = () => {
     },
   });
 
+  // Populate form with initial data when editing
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        name: initialData.name,
+        description: initialData.description,
+        location: initialData.location,
+        base_price: initialData.base_price,
+        bedrooms: initialData.bedrooms,
+        bathrooms: initialData.bathrooms,
+        max_guests: initialData.max_guests,
+        amenities: initialData.amenities,
+      });
+    }
+  }, [initialData, form]);
+
   const handleSubmit = async (data: PropertyFormValues) => {
     setIsSubmitting(true);
     
@@ -82,32 +103,56 @@ const PropertyForm = () => {
         throw new Error('User not authenticated');
       }
       
-      const newProperty = {
-        owner_id: userData.user.id,
-        name: data.name,
-        description: data.description,
-        location: data.location,
-        base_price: data.base_price,
-        bedrooms: data.bedrooms,
-        bathrooms: data.bathrooms,
-        max_guests: data.max_guests,
-        amenities: data.amenities,
-        images: [] as string[],
-        created_at: new Date().toISOString(),
-      };
-      
-      const { error } = await supabase
-        .from('properties')
-        .insert(newProperty);
+      if (isEditing && initialData) {
+        // Update existing property
+        const { error } = await supabase
+          .from('properties')
+          .update({
+            name: data.name,
+            description: data.description,
+            location: data.location,
+            base_price: data.base_price,
+            bedrooms: data.bedrooms,
+            bathrooms: data.bathrooms,
+            max_guests: data.max_guests,
+            amenities: data.amenities,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', initialData.id);
 
-      if (error) throw error;
+        if (error) throw error;
+        
+        toast.success('Property updated successfully!');
+      } else {
+        // Create new property
+        const newProperty = {
+          owner_id: userData.user.id,
+          name: data.name,
+          description: data.description,
+          location: data.location,
+          base_price: data.base_price,
+          bedrooms: data.bedrooms,
+          bathrooms: data.bathrooms,
+          max_guests: data.max_guests,
+          amenities: data.amenities,
+          images: [] as string[],
+          created_at: new Date().toISOString(),
+        };
+        
+        const { error } = await supabase
+          .from('properties')
+          .insert(newProperty);
+
+        if (error) throw error;
+        
+        toast.success('Property added successfully!');
+      }
       
-      toast.success('Property added successfully!');
       router.push('/dashboard/properties');
       router.refresh();
     } catch (error) {
-      console.error('Error adding property:', error);
-      toast.error('Failed to add property. Please try again.');
+      console.error(`Error ${isEditing ? 'updating' : 'adding'} property:`, error);
+      toast.error(`Failed to ${isEditing ? 'update' : 'add'} property. Please try again.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -255,7 +300,7 @@ const PropertyForm = () => {
             />
             
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Adding Property...' : 'Add Property'}
+              {isSubmitting ? (isEditing ? 'Updating Property...' : 'Adding Property...') : (isEditing ? 'Update Property' : 'Add Property')}
             </Button>
           </form>
         </Form>

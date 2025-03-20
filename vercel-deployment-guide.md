@@ -12,8 +12,8 @@ This guide will help you set up and deploy both the Host Site and Main Dashboard
 ## Step 1: Set Up Your Repositories
 
 Create two separate GitHub repositories for your projects:
-- `airbnb-host-site` - For the individual property booking sites
-- `airbnb-host-dashboard` - For the main dashboard site
+- `vercelhostsite` - For the individual property booking sites
+- `vercelmainsite` - For the main dashboard site
 
 Clone these repositories to your local machine:
 
