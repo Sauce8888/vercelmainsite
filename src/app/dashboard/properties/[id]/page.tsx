@@ -7,7 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Home } from 'lucide-react';
 import PropertyForm from '@/components/PropertyForm';
 
-export default async function PropertyDetailPage({ params }: { params: { id: string } }) {
+type PageProps = {
+  params: {
+    id: string;
+  };
+};
+
+export default async function PropertyDetailPage({ params }: PageProps) {
   const supabase = createServerClient();
   
   const { data: { session } } = await supabase.auth.getSession();
