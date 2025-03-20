@@ -8,12 +8,11 @@ import { ArrowLeft, Home } from 'lucide-react';
 import PropertyForm from '@/components/PropertyForm';
 
 type PageProps = {
-  params: Promise<{ id: string }>;
+  params: { id: string };
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
 export default async function PropertyDetailPage({ params }: PageProps) {
-  const resolvedParams = await params;
   const supabase = createServerClient();
   
   const { data: { session } } = await supabase.auth.getSession();
@@ -26,7 +25,7 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   const { data: property, error } = await supabase
     .from('properties')
     .select('*')
-    .eq('id', resolvedParams.id)
+    .eq('id', params.id)
     .single() as { data: Property | null, error: any };
   
   if (error || !property) {
