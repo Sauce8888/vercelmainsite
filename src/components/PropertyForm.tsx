@@ -35,15 +35,6 @@ const propertyFormSchema = z.object({
   base_price: z.coerce.number().positive({
     message: "Price must be a positive number.",
   }),
-  bedrooms: z.coerce.number().int().positive({
-    message: "Bedrooms must be a positive number.",
-  }),
-  bathrooms: z.coerce.number().positive({
-    message: "Bathrooms must be a positive number.",
-  }),
-  max_guests: z.coerce.number().int().positive({
-    message: "Max guests must be a positive number.",
-  }),
   amenities: z.array(z.string()).default([]).or(
     z.string().transform((value: string) => 
       value ? value.split(',').map((item: string) => item.trim()).filter(Boolean) : []
@@ -70,9 +61,6 @@ const PropertyForm = ({ initialData }: PropertyFormProps) => {
       description: '',
       location: '',
       base_price: 0,
-      bedrooms: 1,
-      bathrooms: 1,
-      max_guests: 1,
       amenities: [],
     },
   });
@@ -85,13 +73,10 @@ const PropertyForm = ({ initialData }: PropertyFormProps) => {
         description: initialData.description,
         location: initialData.location,
         base_price: initialData.base_price,
-        bedrooms: initialData.bedrooms,
-        bathrooms: initialData.bathrooms,
-        max_guests: initialData.max_guests,
         amenities: initialData.amenities,
       });
     }
-  }, [initialData, form]);
+  }, [form, initialData]);
 
   const handleSubmit = async (data: PropertyFormValues) => {
     setIsSubmitting(true);
@@ -112,9 +97,6 @@ const PropertyForm = ({ initialData }: PropertyFormProps) => {
             description: data.description,
             location: data.location,
             base_price: data.base_price,
-            bedrooms: data.bedrooms,
-            bathrooms: data.bathrooms,
-            max_guests: data.max_guests,
             amenities: data.amenities,
             updated_at: new Date().toISOString(),
           })
@@ -131,9 +113,6 @@ const PropertyForm = ({ initialData }: PropertyFormProps) => {
           description: data.description,
           location: data.location,
           base_price: data.base_price,
-          bedrooms: data.bedrooms,
-          bathrooms: data.bathrooms,
-          max_guests: data.max_guests,
           amenities: data.amenities,
           images: [] as string[],
           created_at: new Date().toISOString(),
@@ -224,48 +203,6 @@ const PropertyForm = ({ initialData }: PropertyFormProps) => {
                     <FormLabel>Price per Night ($)</FormLabel>
                     <FormControl>
                       <Input type="number" min="0" step="0.01" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="max_guests"
-                render={({ field }: { field: any }) => (
-                  <FormItem>
-                    <FormLabel>Max Guests</FormLabel>
-                    <FormControl>
-                      <Input type="number" min="1" step="1" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="bedrooms"
-                render={({ field }: { field: any }) => (
-                  <FormItem>
-                    <FormLabel>Bedrooms</FormLabel>
-                    <FormControl>
-                      <Input type="number" min="0" step="1" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="bathrooms"
-                render={({ field }: { field: any }) => (
-                  <FormItem>
-                    <FormLabel>Bathrooms</FormLabel>
-                    <FormControl>
-                      <Input type="number" min="0" step="0.5" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

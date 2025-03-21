@@ -19,9 +19,6 @@ export interface Database {
           amenities: string[] | null
           images: string[] | null
           base_price: number
-          bedrooms: number
-          bathrooms: number
-          max_guests: number
           created_at: string
           updated_at: string | null
         }
@@ -34,9 +31,6 @@ export interface Database {
           amenities?: string[] | null
           images?: string[] | null
           base_price: number
-          bedrooms: number
-          bathrooms: number
-          max_guests: number
           created_at?: string
           updated_at?: string | null
         }
@@ -49,9 +43,6 @@ export interface Database {
           amenities?: string[] | null
           images?: string[] | null
           base_price?: number
-          bedrooms?: number
-          bathrooms?: number
-          max_guests?: number
           created_at?: string
           updated_at?: string | null
         }
